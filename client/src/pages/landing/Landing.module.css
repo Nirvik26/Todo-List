@@ -1,0 +1,22 @@
+
+
+.landing__wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 100px;
+    padding: 2rem;
+  }
+  
+  .landing__text {
+    width: 40%; /* Adjust width as needed */
+  }
+  
+  .landing__text h1 {
+    font-size: 4rem;
+  }
+  
+  .landing__img {
+    width: 50%; /* Adjust width as needed */
+    margin-right: 2rem; /* Add margin to the right to create space between image and text */
+  }
+  
