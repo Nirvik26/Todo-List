@@ -1,20 +1,41 @@
 import React, { useState } from "react";
 import styles from "./Login.module.css";
 import login from "../../assests/login.png";
-import { Input, Button } from "antd";
-import { Link } from "react-router-dom";
+import { Input, Button, message } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import AuthServices from "../../services/authServices";
+import { getErrorMessage } from "../../util/GetError";
 
 function Login() {
-  const { username, setUsername } = useState("");
-  const { password, setPassword } = useState("");
-  const handleSubmit = () => {
-    console.log("login");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      let data = {
+        username,
+        password,
+      };
+      const response = await AuthServices.loginUser(data);
+      console.log(response.data);
+      localStorage.setItem("toDoAppUser", JSON.stringify(response.data));
+      message.success("User logged in successfully!!!");
+      setLoading(false);
+      navigate("/todolist");
+    } catch (error) {
+      console.log(error);
+      message.error(getErrorMessage(error));
+      setLoading(false);
+    }
   };
   return (
     <div>
       <div className={styles.login__card}>
         <img src={login} alt=".." />
-        <h4>Login</h4>
+        <h2>Login</h2>
         <div className={styles.input__wrapper}>
           <Input
             placeholder="Username"
@@ -33,6 +54,7 @@ function Login() {
           New User? <Link to="/register">Register</Link>
         </div>
         <Button
+          loading={loading}
           type="primary"
           size="large"
           disabled={!username || !password}

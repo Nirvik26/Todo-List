@@ -7,8 +7,13 @@ const secretkey = process.env.JWT_SECRET;
 
 async function registerUser(req, res) {
   const { firstName, lastName, username, password } = req.body;
+  console.log(req.body);
+
+  if (!firstName || !lastName || !username || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
   try {
-    duplicate = await username.findBy({ username });
+    duplicate = await User.findOne({ username });
     if (duplicate && duplicate.length > 0) {
       res.status(400).send({ message: "Username is already taken" });
     }
@@ -25,29 +30,34 @@ async function registerUser(req, res) {
 
 async function loginUser(req, res) {
   const { username, password } = req.body;
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username and password are required" });
+  }
   try {
-    const user = await user.findOne({ username });
+    const user = await User.findOne({ username });
     if (!user) {
-      res.status(400).send({ error: "Authentication failed!!!" });
+      return res.status(400).send({ message: "Authentication failed!!!" });
     }
-    const isPasswordValid = await user.comparePassword({ password });
+    const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      res.status(400).send({ error: "Password Error" });
+      return res.status(400).send({ message: "Password Error" });
     }
     const token = jwt.sign({ suerId: user?._id }, secretkey, {
       expiresIn: "2h",
     });
     const finalData = {
-      userId: user?._id,
-      username: user?.username,
-      firstname: user?.firstname,
-      lastname: user?.lastname,
+      userId: user._id,
+      username: user.username,
+      firstname: user.firstname,
+      lastname: user.lastname,
       token,
     };
-    res.send(finalData);
+    return res.send(finalData);
   } catch (err) {
     console.log(err);
-    res.status(400).send(err);
+    return res.status(400).send(err);
   }
 }
 
